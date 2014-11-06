@@ -20,17 +20,6 @@ gulp.task('serve', function () {
   harp.server(__dirname + '/public', {
     port: 9000
   });
-  /*
-  <!-- , function () {
-    browserSync({
-      proxy: "localhost:9000",
-      open: false,
-      notify: {
-        styles: ['opacity: 0', 'position: absolute']
-      }
-    });
-  }; -->
-  */
 });
 
 
@@ -38,29 +27,29 @@ gulp.task('serve', function () {
 gulp.task('optimize-images', function(tmp) {
   console.log(tmp);
   gulp.src(['app/assets/images/**/*.jpg', 'app/assets/images/**/*.png'])
-    .pipe(imagemin({ optimizationLevel: 5, progressive: true, interlaced: true }));
+    .pipe(imagemin({ optimizationLevel: 5, progressive: true, interlaced: true }))
 });
 
 //compressing images & handle SVG files
 gulp.task('images-deploy', function() {
   gulp.src(['app/assets/images/**/*'])
-    .pipe(gulp.dest('pubic/images'));
+    .pipe(gulp.dest('public/images'))
 });
 
 gulp.task('scripts', function () {
   return gulp.src('app/js/**/*.js')
     .pipe(to5())
-    .pipe(concat('app.js')
-    .pipe(gulp.dest('public/js'));
+    .pipe(concat('app.js'))
+    .pipe(gulp.dest('public/js'))
 });
 
 gulp.task('scripts-deploy', function () {
   return gulp.src('app/js/**/*.js')
     // es6 6to5 preprocessor
     .pipe(to5())
-    .pipe(concat('app.js')
+    .pipe(concat('app.js'))
     .pipe(uglify())
-    .pipe(gulp.dest('public/js'));
+    .pipe(gulp.dest('public/js'))
 });
 
 gulp.task('styles', function() {
@@ -97,7 +86,7 @@ gulp.task('styles-deploy', function() {
    .pipe(concat('styles.css'))
    .pipe(minifyCSS())
    //where to save our final, compressed css file
-   .pipe(gulp.dest('pubic/styles'));
+   .pipe(gulp.dest('public/styles'));
 });
 
 gulp.task('templates', function() {
@@ -108,48 +97,48 @@ gulp.task('templates', function() {
     .pipe(gulp.dest('/public'))
 });
 
-gulp.task('html', function() {
-  return gulp.src('app/**/*.html')
-});
+gulp.task('assets', ['templates', 'html', 'images-deploy']);
 
 //migrating over all HTML files for deployment
 gulp.task('html-deploy', function() {
     //grab everything, which should include htaccess, robots, etc
     gulp.src('app/*')
-        .pipe(gulp.dest('pubic'));
+        .pipe(gulp.dest('public'));
 
     //grab any hidden files too
     gulp.src('app/.*')
-        .pipe(gulp.dest('pubic'));
+        .pipe(gulp.dest('public'));
 
     gulp.src('app/fonts/**/*')
-        .pipe(gulp.dest('pubic/fonts'));
+        .pipe(gulp.dest('public/fonts'));
 
     //grab all of the styles
     gulp.src(['app/styles/*.css', '!app/styles/styles.css'])
-        .pipe(gulp.dest('pubic/styles'));
+        .pipe(gulp.dest('public/styles'));
 });
 
-//cleans our pubic directory in case things got deleted
+//cleans our public directory in case things got deleted
 gulp.task('clean', function() {
-    del('pubic');
+    del('public');
 });
 
-//this is our master task when you run `gulp` in CLI / Terminal
-//this is the main watcher to use when in active development
-//  this will:
-//  startup the web server,
-//  start up livereload
-//  compress all scripts and SCSS files
-gulp.task('default', ['serve', 'scripts', 'styles', 'assets'], function() {
+/**
+ * the default task is to build but not minify everything in source
+ * then run harp on the public directory and set up watchers for
+ * source changes.
+ */
+gulp.task('default', ['serve', 'scripts', 'styles', 'templates', 'assets'], function() {
     //a list of watchers, so it will watch all of the following files waiting for changes
     gulp.watch('app/scripts/src/**', ['scripts']);
     gulp.watch('app/styles/scss/**', ['styles']);
     gulp.watch('app/images/**', ['images']);
-    gulp.watch('app/*.html', ['html']);
+    gulp.watch('app/**/*.jade', ['templates']);
 });
 
-//this is our deployment task, it will set everything for deployment-ready files
+/**
+ * the deploy task is basically the same as default but minifies source
+ * for deployment
+ */
 gulp.task('deploy', ['clean'], function () {
   gulp.start('scripts-deploy', 'styles-deploy', 'html-deploy', 'images-deploy');
 });
