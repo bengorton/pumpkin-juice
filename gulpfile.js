@@ -8,11 +8,15 @@ to5         = require('gulp-6to5');
 gutil       = require('gulp-util');
 concat      = require('gulp-concat');
 uglify      = require('gulp-uglify');
+
 stylus      = require('gulp-stylus');
+jeet        = require('jeet');
+rupture     = require('rupture');
+minifyCSS   = require('gulp-minify-css');
+
 jade        = require('gulp-jade');
 imagemin    = require('gulp-imagemin');
 cache       = require('gulp-cache');
-minifyCSS   = require('gulp-minify-css');
 harp        = require('harp');
 del         = require('del');
 
@@ -30,74 +34,24 @@ gulp.task('optimize-images', function(tmp) {
     .pipe(imagemin({ optimizationLevel: 5, progressive: true, interlaced: true }))
 });
 
-//compressing images & handle SVG files
+//moving images to public
 gulp.task('images-deploy', function() {
   gulp.src(['app/assets/images/**/*'])
     .pipe(gulp.dest('public/images'))
 });
 
-gulp.task('scripts', function () {
-  return gulp.src('app/js/**/*.js')
-    .pipe(to5())
-    .pipe(concat('app.js'))
-    .pipe(gulp.dest('public/js'))
-});
-
-gulp.task('scripts-deploy', function () {
-  return gulp.src('app/js/**/*.js')
-    // es6 6to5 preprocessor
-    .pipe(to5())
-    .pipe(concat('app.js'))
-    .pipe(uglify())
-    .pipe(gulp.dest('public/js'))
-});
-
-gulp.task('styles', function() {
-  //the initializer / master SCSS file, which will just be a file that imports everything
-  return gulp.src('app/styles/scss/init.scss')
-      //include SCSS and list every "include" folder
-     .pipe(sass({
-        errLogToConsole: true,
-        includePaths: [
-          'app/styles/scss/'
-        ]
-     }))
-     //catch errors
-     .on('error', gutil.log)
-     //the final filename of our combined css file
-     .pipe(concat('styles.css'))
-     //where to save our final, compressed css file
-     .pipe(gulp.dest('app/styles'))
-     //notify LiveReload to refresh
-     //.pipe(connect.reload());
-});
-
-//compiling our SCSS files for deployment
-gulp.task('styles-deploy', function() {
-  //the initializer / master SCSS file, which will just be a file that imports everything
-  return gulp.src('app/styles/scss/init.scss')
-    //include SCSS includes folder
-    .pipe(sass({
-      includePaths: [
-        'app/styles/scss',
-      ]
-    }))
-   //the final filename of our combined css file
-   .pipe(concat('styles.css'))
-   .pipe(minifyCSS())
-   //where to save our final, compressed css file
-   .pipe(gulp.dest('public/styles'));
+gulp.task('fonts', function() {
+  gulp.src(['app/assets/fonts/**/*'])
+    .pipe(gulp.dest('public/fonts'))
 });
 
 gulp.task('templates', function() {
-  gulp.src('./lib/*.jade')
-    .pipe(jade({
-      locals: ['app/**/*.jade']
-    }))
+  gulp.src('./app/**/*.jade')
+    .pipe(jade())
     .pipe(gulp.dest('/public'))
 });
 
-gulp.task('assets', ['templates', 'html', 'images-deploy']);
+gulp.task('assets', ['templates', 'fonts', 'images-deploy']);
 
 //migrating over all HTML files for deployment
 gulp.task('html-deploy', function() {
@@ -117,6 +71,37 @@ gulp.task('html-deploy', function() {
         .pipe(gulp.dest('public/styles'));
 });
 
+gulp.task('scripts', function () {
+  return gulp.src('app/js/**/*.js')
+    .pipe(to5())
+    .pipe(concat('app.js'))
+    .pipe(gulp.dest('public/js'))
+});
+
+gulp.task('scripts-deploy', function () {
+  return gulp.src('app/js/**/*.js')
+    // es6 6to5 preprocessor
+    .pipe(to5())
+    .pipe(concat('app.js'))
+    .pipe(uglify())
+    .pipe(gulp.dest('public/js'))
+});
+
+gulp.task('styles', function() {
+  return gulp.src('app/styles/app.styl')
+    .pipe(stylus({use: [jeet()], compress: false}))
+    .pipe(gulp.dest('public/styles'))
+});
+
+gulp.task('styles-deploy', function() {
+  return gulp.src('app/styles/app.styl')
+    .pipe(stylus({
+      use: [jeet(), rupture()],
+      compress: true
+    }))
+    .pipe(gulp.dest('public/styles'))
+});
+
 //cleans our public directory in case things got deleted
 gulp.task('clean', function() {
     del('public');
@@ -127,13 +112,15 @@ gulp.task('clean', function() {
  * then run harp on the public directory and set up watchers for
  * source changes.
  */
-gulp.task('default', ['serve', 'scripts', 'styles', 'templates', 'assets'], function() {
+gulp.task('default', ['scripts', 'styles', 'templates', 'assets'], function() {
     //a list of watchers, so it will watch all of the following files waiting for changes
     gulp.watch('app/scripts/src/**', ['scripts']);
     gulp.watch('app/styles/scss/**', ['styles']);
     gulp.watch('app/images/**', ['images']);
     gulp.watch('app/**/*.jade', ['templates']);
 });
+
+gulp.task('run', ['serve', 'default']);
 
 /**
  * the deploy task is basically the same as default but minifies source
