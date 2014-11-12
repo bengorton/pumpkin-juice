@@ -1,7 +1,36 @@
+/**
+ * base should be the first import after any resets to
+ * establish variables
+ */
 
+/**
+ * importing google fonts - way more than needed
+ */
+@import url('http://fonts.googleapis.com/css?family=Arvo:400,700')
+@import url('http://fonts.googleapis.com/css?family=Open+Sans:300italic,400,300,700')
+@import url('http://fonts.googleapis.com/css?family=Vollkorn')
 
 // http://www.paulirish.com/2012/box-sizing-border-box-ftw/
-html 
+html
   box-sizing border-box
 *, *:before, *:after 
   box-sizing inherit
+
+/**
+ * theme variables
+ */
+back     = #120D08
+backmid  = #421614
+mid      = #BF4E15
+midfore  = #DB713B
+fore     = #FAF2F8
+
+/**
+ * breakpoints
+ * use +below(var) or +above(var)
+ */
+mobile            = 640px
+tablet-portrait   = 768px
+tablet            = 1024px
+laptop            = 1140px
+desktop           = 1440px
