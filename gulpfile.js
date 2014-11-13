@@ -65,14 +65,14 @@ gulp.task('scripts-deploy', function () {
  */
 gulp.task('styles', function() {
   return gulp.src('app/styles/app.styl')
-    .pipe(stylus({use: [jeet(), nib()], compress: false}))
+    .pipe(stylus({use: [jeet(), nib(), rupture()], compress: false}))
     .pipe(gulp.dest('public/styles'))
 });
 
 gulp.task('styles-deploy', function() {
   return gulp.src('app/styles/app.styl')
     .pipe(stylus({
-      use: [jeet(), rupture()],
+      use: [jeet(), nib(), rupture()],
       compress: true
     }))
     .pipe(gulp.dest('public/styles'))

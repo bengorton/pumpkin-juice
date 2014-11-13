@@ -1,14 +1,11 @@
-/**
- * base should be the first import after any resets to
- * establish variables
- */
+@import "jeet"
+@import "nib"
+@import "rupture"
 
 /**
- * importing google fonts - way more than needed
+ * nib reset
  */
-@import url('http://fonts.googleapis.com/css?family=Arvo:400,700')
-@import url('http://fonts.googleapis.com/css?family=Open+Sans:300italic,400,300,700')
-@import url('http://fonts.googleapis.com/css?family=Vollkorn')
+global-reset();
 
 // http://www.paulirish.com/2012/box-sizing-border-box-ftw/
 html
@@ -19,12 +16,25 @@ html
 /**
  * theme variables
  */
+
+/*
+ * light on dark
+ */
+/*
 back     = #120D08
 backmid  = #421614
 mid      = #BF4E15
 midfore  = #DB713B
 fore     = #FAF2F8
-
+*/
+/**
+ * dark on light
+ */
+back     = #F2f2f2
+backmid  = #DB713B
+mid      = #BF4E15
+midfore  = #421614
+fore     = #120D08
 /**
  * breakpoints
  * use +below(var) or +above(var) to set a media query via rupture
