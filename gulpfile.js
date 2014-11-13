@@ -35,9 +35,12 @@ gulp.task('optimize-images', function(tmp) {
  * jade compiler
  */
 gulp.task('templates', function() {
-  gulp.src(['./app/*.jade', './app/layout/**/*.jade'])
+  gulp.src(['./app/*.jade'])
     .pipe(jade({pretty:true}))
-    .pipe(gulp.dest('public'))
+    .pipe(gulp.dest('public'));
+  gulp.src(['./app/layout/sections/**/*.jade'])
+    .pipe(jade({pretty:true}))
+    .pipe(gulp.dest('public'));
 });
 
 /**
@@ -91,10 +94,10 @@ gulp.task('clean', function() {
  */
 gulp.task('assets', ['templates'], function() {
   gulp.src(['app/assets/fonts/**/*'])
-    .pipe(gulp.dest('public/fonts'))
+    .pipe(gulp.dest('public/assets/fonts'))
 
   gulp.src(['app/assets/images/**/*'])
-    .pipe(gulp.dest('public/images'))
+    .pipe(gulp.dest('public/assets/images'))
 });
 
 /**
