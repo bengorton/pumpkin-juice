@@ -2,6 +2,7 @@
 
 var gulp      = require('gulp'),
   to5         = require('gulp-6to5'),
+  ngAnnotate  = require('gulp-ng-annotate'),
   gutil       = require('gulp-util'),
   concat      = require('gulp-concat'),
   uglify      = require('gulp-uglify'),
@@ -47,17 +48,18 @@ gulp.task('templates', function() {
  * es6 compile and concat
  */
 gulp.task('scripts', function () {
-  return gulp.src('app/js/**/*.js')
+  return gulp.src('app/**/*.js')
     .pipe(to5())
     .pipe(concat('app.js'))
     .pipe(gulp.dest('public/js'))
 });
 
 gulp.task('scripts-deploy', function () {
-  return gulp.src('app/js/**/*.js')
+  return gulp.src('app/**/*.js')
     // es6 6to5 preprocessor
     .pipe(to5())
     .pipe(concat('app.js'))
+    .pipe(ngAnnotate())
     .pipe(uglify())
     .pipe(gulp.dest('public/js'))
 });
