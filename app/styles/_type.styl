@@ -24,23 +24,29 @@
   font-style normal
 
 @font-face
-  font-family: 'Open Sans'
+  font-family 'Open Sans'
   src url('../assets/fonts/opensans-regular-webfont.eot')
   src url('../assets/fonts/opensans-regular-webfont.eot?#iefix') format('embedded-opentype'),
     url('../assets/fonts/opensans-regular-webfont.woff2') format('woff2'),
     url('../assets/fonts/opensans-regular-webfont.woff') format('woff'),
     url('../assets/fonts/opensans-regular-webfont.ttf') format('truetype'),
     url('../assets/fonts/opensans-regular-webfont.svg#open_sansregular') format('svg')
-  font-weight: normal
-  font-style: normal
+  font-weight normal
+  font-style normal
+
+/**
+ * mixin to set default declarations
+ */
+font-style(size, weight = normal)
+  font weight size 'Open Sans', 'Helvetica Neue', sans-serif
 
 body
-  font  normal 16px 'Open Sans', 'Helvetica Neue', sans-serif
+  font-style(16px)
   color fore
 
 h1
-  font lighter 36px 'Open Sans', 'Helvetica Neue', sans-serif
+  font-style(36px, lighter)
 
 h2
-  font bold 18px 'Open Sans', 'Helvetica Neue', sans-serif
+  font-style(18px, bold)
   color midfore
