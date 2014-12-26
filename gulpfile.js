@@ -2,27 +2,26 @@
 
 var gulp      = require('gulp'),
   to5         = require('gulp-6to5'),
-  ngAnnotate  = require('gulp-ng-annotate'),
-  gutil       = require('gulp-util'),
   concat      = require('gulp-concat'),
   uglify      = require('gulp-uglify'),
-
+  flatten     = require('gulp-flatten'),
   stylus      = require('gulp-stylus'),
   jeet        = require('jeet'),
   nib         = require('nib'),
   rupture     = require('rupture'),
   minifyCSS   = require('gulp-minify-css'),
-
   jade        = require('gulp-jade'),
   imagemin    = require('gulp-imagemin'),
   cache       = require('gulp-cache'),
   harp        = require('harp'),
+  livereload  = require('gulp-livereload'),
   del         = require('del');
 
 gulp.task('serve', function () {
   harp.server(__dirname + '/public', {
     port: 9000
   });
+  livereload.listen();
 });
 
 //compressing images & handle SVG files
@@ -48,6 +47,8 @@ gulp.task('templates', function() {
  * es6 compile and concat
  */
 gulp.task('scripts', function () {
+  gulp.src('app/vendor/**/*.js')
+    .pipe(gulp.dest('public/js'));
   return gulp.src('app/**/*.js')
     .pipe(to5())
     .pipe(concat('app.js'))
@@ -55,7 +56,9 @@ gulp.task('scripts', function () {
 });
 
 gulp.task('scripts-deploy', function () {
-  return gulp.src('app/**/*.js')
+  gulp.src('app/vendor/**/*.js')
+    .pipe(gulp.dest('public/js'));
+  return gulp.src('app/js/**/*.js')
     // es6 6to5 preprocessor
     .pipe(to5())
     .pipe(concat('app.js'))
@@ -94,12 +97,12 @@ gulp.task('clean', function() {
 /**
  * run all the assets tasks
  */
-gulp.task('assets', ['templates'], function() {
+gulp.task('assets', function() {
   gulp.src(['app/assets/fonts/**/*'])
-    .pipe(gulp.dest('public/assets/fonts'))
+    .pipe(gulp.dest('public/fonts'))
 
   gulp.src(['app/assets/images/**/*'])
-    .pipe(gulp.dest('public/assets/images'))
+    .pipe(gulp.dest('public/images'))
 });
 
 /**
@@ -107,16 +110,13 @@ gulp.task('assets', ['templates'], function() {
  * then run harp on the public directory and set up watchers for
  * source changes.
  */
-gulp.task('default', ['scripts', 'styles', 'templates', 'assets'], function() {
+gulp.task('default', ['scripts', 'styles', 'templates', 'assets', 'serve'], function() {
     //a list of watchers, so it will watch all of the following files waiting for changes
     gulp.watch('app/**/*.js', ['scripts']);
     gulp.watch('app/styles/**/*', ['styles']);
     gulp.watch('app/images/**/*', ['images']);
     gulp.watch('app/**/*.jade', ['templates']);
 });
-
-gulp.task('run', ['serve', 'default']);
-
 /**
  * the deploy task is basically the same as default but minifies source
  * for deployment
